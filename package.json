@@ -1,7 +1,7 @@
 {
   "name": "mesto",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.2",
+  "description": "Server for Mesto project",
   "main": "app.js",
   "dependencies": {
     "express": "^4.17.1"
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/SysoevAndrey/serverMesto.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Andrey Sysoev",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/SysoevAndrey/serverMesto/issues"

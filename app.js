@@ -12,9 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/cards', cards);
 app.use('/users', users);
 app.use('/', (req, res) => {
-  res.status(404).send({ "message": "Запрашиваемый ресурс не найден" });
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+app.listen(PORT);

@@ -10,13 +10,13 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  if (!usersData.some((item) => item._id === req.params.id)) {
-    res.status(404).send({ "message": "Нет пользователя с таким id" });
+  const user = usersData.find((item) => item._id === req.params.id);
 
-    return;
+  if (user) {
+    res.send(user);
+  } else {
+    res.status(404).send({ message: 'Нет пользователя с таким id' });
   }
-
-  res.send(usersData.find((item) => item._id === req.params.id))
 });
 
 module.exports = router;
