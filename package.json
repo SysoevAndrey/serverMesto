@@ -1,0 +1,30 @@
+{
+  "name": "mesto",
+  "version": "0.0.2",
+  "description": "Server for Mesto project",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SysoevAndrey/serverMesto.git"
+  },
+  "keywords": [],
+  "author": "Andrey Sysoev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SysoevAndrey/serverMesto/issues"
+  },
+  "homepage": "https://github.com/SysoevAndrey/serverMesto#readme"
+}
