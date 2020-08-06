@@ -1,4 +1,4 @@
-const User = require('../models/users');
+const { User, validation } = require('../models/users');
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
@@ -29,4 +29,17 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(userId, { name: name, about: about })
     .then(user => res.send({ data: user }))
     .catch(err => res.status(500).send({ message: err.message }));
+};
+
+module.exports.updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  const userId = req.user._id;
+
+  if (validation.test(avatar)) {
+    User.findByIdAndUpdate(userId, { avatar: avatar })
+      .then(user => res.send({ data: user }))
+      .catch(err => res.status(500).send({ message: err.message }));
+  } else {
+    res.status(400).send({ message: "Должна быть ссылка на картинку" })
+  }
 };
