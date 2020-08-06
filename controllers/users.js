@@ -11,7 +11,7 @@ module.exports.getUserById = (req, res) => {
 
   User.findOne({ _id: userId })
     .then(user => res.send(user))
-    .catch(err => res.status(500).send({ message: err.message }));
+    .catch(err => res.status(404).send({ message: err.message }));
 };
 
 module.exports.createUser = (req, res) => {
@@ -20,4 +20,4 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then(user => res.send({ data: user }))
     .catch(err => res.status(500).send({ message: err.message }));
-}
+};
