@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
@@ -15,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   req.user = {
-      _id: '5f2c20658feef43bc3aa73fb'
+    _id: '5f2c20658feef43bc3aa73fb',
   };
 
   next();
@@ -24,7 +23,7 @@ app.use((req, res, next) => {
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 
 app.use('/cards', cards);
