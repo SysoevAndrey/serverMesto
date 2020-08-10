@@ -1,6 +1,5 @@
+const validator = require('validator');
 const User = require('../models/users');
-
-const validation = /https?:\/\/(www\.)?(([\w\-]+\.)+([A-Z]|[a-z])+|(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))(:([1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5]))?(((\/([0-9]|[A-Z]|[a-z])+)+(#|\/)?)|\/)?/;
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
@@ -37,7 +36,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  if (validation.test(avatar)) {
+  if (validator.isURL(avatar)) {
     User.findByIdAndUpdate(userId, { avatar })
       .then((user) => res.send({ data: user }))
       .catch((err) => res.status(500).send({ message: err.message }));
