@@ -27,9 +27,9 @@ module.exports.createUser = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
-  console.log(typeof about);
 
-  if (validator.isLength(name, { min: 2, max: 30 }) && validator.isLength(about, { min: 2, max: 30 })) {
+  if (validator.isLength(name, { min: 2, max: 30 })
+      && validator.isLength(about, { min: 2, max: 30 })) {
     User.findByIdAndUpdate(userId, { name, about })
       .orFail(() => Error('Пользователь не найден'))
       .then((user) => res.send({ data: user }))
