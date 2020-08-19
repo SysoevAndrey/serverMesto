@@ -19,10 +19,11 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
-      if (card !== null) {
-        res.send({ data: card });
+      if (card) {
+        res.send(card);
+        card.remove();
       } else {
         res.status(404).send({ message: 'Такой карточки не существует' });
       }
