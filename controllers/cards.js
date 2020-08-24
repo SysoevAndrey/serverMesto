@@ -22,6 +22,11 @@ module.exports.deleteCard = (req, res) => {
   Card.findById(cardId)
     .then((card) => {
       if (card) {
+        if (req.user._id != card.owner._id) {
+          console.log(req.user._id != card.owner._id);
+          return Promise.reject(new Error('Нет прав на удаление данной карточки'));
+        }
+
         res.send(card);
         card.remove();
       } else {
