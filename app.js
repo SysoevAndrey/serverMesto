@@ -3,16 +3,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 const auth = require('./middlewares/auth');
+
+
 
 const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
+
+app.use(limiter);
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -23,6 +34,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useCreateIndex: true,
   useFindAndModify: false,
 });
+
+app.use(helmet());
 
 app.post('/signin', login);
 app.post('/signup', createUser);

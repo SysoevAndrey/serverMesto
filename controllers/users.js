@@ -1,6 +1,14 @@
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const PasswordValidator = require('password-validator');
+
+const pass = new PasswordValidator();
+
+pass
+  .has().not().spaces()
+  .is()
+  .min(6);
 
 const User = require('../models/users');
 
@@ -23,18 +31,32 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { email, password, name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+
+  if (!pass.validate(password)) {
+    res.status(401).send({ message: 'Пароль не валиден' });
+  }
 
   bcrypt.hash(password, 10)
-    .then(hash => User.create({
+    .then((hash) => User.create({
       email,
       password: hash,
       name,
       about,
-      avatar
+      avatar,
     }))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then(() => res.send({
+      email, name, about, avatar,
+    }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        res.status(409).send({ message: 'Пользователь с таким email уже существует' });
+      }
+
+      res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
@@ -69,18 +91,18 @@ module.exports.updateAvatar = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findOne({ email }).select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, key);
 
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
-          httpOnly: true
+          httpOnly: true,
         })
         .send({ message: `Добро пожаловать: ${user.name}` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(401).send({ message: err.message });
     });
 };
