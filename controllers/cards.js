@@ -20,10 +20,11 @@ module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
+    .populate('owner')
     .then((card) => {
       if (card) {
-        if (req.user._id != card.owner._id) {
-          return Promise.reject(new Error('Нет прав на удаление данной карточки'));
+        if (req.user._id !== card.owner._id.toString()) {
+          return res.status(403).send({ message: 'Нет прав на удаление данной карточки' });
         }
 
         card.remove();

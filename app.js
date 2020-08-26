@@ -10,8 +10,6 @@ const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 const auth = require('./middlewares/auth');
 
-
-
 const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
@@ -20,7 +18,7 @@ const app = express();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 100,
 });
 
 app.use(limiter);
