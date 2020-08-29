@@ -1,5 +1,5 @@
 # serverMesto
-###### 0.0.3
+###### 0.0.6
 
 In this project, I have created my first server.
 

@@ -19,13 +19,18 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
+    .populate('owner')
     .then((card) => {
-      if (card !== null) {
-        res.send({ data: card });
-      } else {
-        res.status(404).send({ message: 'Такой карточки не существует' });
+      if (card) {
+        if (req.user._id !== card.owner._id.toString()) {
+          return res.status(403).send({ message: 'Нет прав на удаление данной карточки' });
+        }
+
+        card.remove();
+        return res.send(card);
       }
+      return res.status(404).send({ message: 'Такой карточки не существует' });
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };

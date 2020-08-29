@@ -1,5 +1,19 @@
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const PasswordValidator = require('password-validator');
+
+const pass = new PasswordValidator();
+
+pass
+  .has().not().spaces()
+  .is()
+  .min(6);
+
 const User = require('../models/users');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
+const key = NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret';
 
 module.exports.getAllUsers = (req, res) => {
   User.find({})
@@ -17,11 +31,32 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+  if (!pass.validate(password)) {
+    res.status(401).send({ message: 'Пароль не валиден' });
+  }
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
+    .then(() => res.send({
+      email, name, about, avatar,
+    }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        res.status(409).send({ message: 'Пользователь с таким email уже существует' });
+      }
+
+      res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
@@ -29,7 +64,7 @@ module.exports.updateProfile = (req, res) => {
   const userId = req.user._id;
 
   if (validator.isLength(name, { min: 2, max: 30 })
-      && validator.isLength(about, { min: 2, max: 30 })) {
+    && validator.isLength(about, { min: 2, max: 30 })) {
     User.findByIdAndUpdate(userId, { name, about })
       .orFail(() => Error('Пользователь не найден'))
       .then((user) => res.send({ data: user }))
@@ -51,4 +86,23 @@ module.exports.updateAvatar = (req, res) => {
   } else {
     res.status(400).send({ message: 'Должна быть ссылка на картинку' });
   }
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, key);
+
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({ message: `Добро пожаловать: ${user.name}` });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
 };
