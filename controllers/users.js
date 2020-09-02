@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const PasswordValidator = require('password-validator');
 const NotFoundError = require('../errors/not-found-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const pass = new PasswordValidator();
 
@@ -47,7 +48,7 @@ module.exports.createUser = (req, res) => {
   } = req.body;
 
   if (!pass.validate(password)) {
-    res.status(401).send({ message: 'Пароль не валиден' });
+    throw new UnauthorizedError('Пароль не валиден');
   }
 
   bcrypt.hash(password, 10)
@@ -66,11 +67,11 @@ module.exports.createUser = (req, res) => {
         res.status(409).send({ message: 'Пользователь с таким email уже существует' });
       }
 
-      res.status(500).send({ message: err.message });
+      next(err);
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -84,13 +85,13 @@ module.exports.updateProfile = (req, res) => {
 
         res.send({ data: user })
       })
-      .catch((err) => res.status(500).send({ message: err.message }));
+      .catch(next);
   } else {
     res.status(400).send({ message: 'От 2 до 30 символов' });
   }
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -103,13 +104,13 @@ module.exports.updateAvatar = (req, res) => {
 
         res.send({ data: user })
       })
-      .catch((err) => res.status(500).send({ message: err.message }));
+      .catch(next);
   } else {
     res.status(400).send({ message: 'Должна быть ссылка на картинку' });
   }
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -123,7 +124,5 @@ module.exports.login = (req, res) => {
         })
         .send({ message: `Добро пожаловать: ${user.name}` });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
