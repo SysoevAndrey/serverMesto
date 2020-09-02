@@ -2,32 +2,43 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const PasswordValidator = require('password-validator');
+const NotFoundError = require('../errors/not-found-err');
 
 const pass = new PasswordValidator();
 
 pass
   .has().not().spaces()
-  .is()
-  .min(6);
+  .is().min(6);
 
 const User = require('../models/users');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const key = NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret';
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((users) => {
+      if (!users) {
+        throw new NotFoundError('Нет пользователей');
+      }
+
+      res.send({ data: users })
+    })
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findOne({ _id: userId })
-    .orFail(() => Error('Пользователь не найден'))
-    .then((user) => res.send(user))
-    .catch((err) => res.status(404).send({ message: err.message }));
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+
+      res.send(user);
+    })
+    .catch(next);
 };
 
 module.exports.createUser = (req, res) => {
@@ -65,9 +76,14 @@ module.exports.updateProfile = (req, res) => {
 
   if (validator.isLength(name, { min: 2, max: 30 })
     && validator.isLength(about, { min: 2, max: 30 })) {
-    User.findByIdAndUpdate(userId, { name, about })
-      .orFail(() => Error('Пользователь не найден'))
-      .then((user) => res.send({ data: user }))
+    User.findByIdAndUpdate(userId, { name, about }, { new: true })
+      .then((user) => {
+        if (!user) {
+          throw new NotFoundError('Пользователь не найден');
+        }
+
+        res.send({ data: user })
+      })
       .catch((err) => res.status(500).send({ message: err.message }));
   } else {
     res.status(400).send({ message: 'От 2 до 30 символов' });
@@ -79,9 +95,14 @@ module.exports.updateAvatar = (req, res) => {
   const userId = req.user._id;
 
   if (validator.isURL(avatar)) {
-    User.findByIdAndUpdate(userId, { avatar })
-      .orFail(() => Error('Пользователь не найден'))
-      .then((user) => res.send({ data: user }))
+    User.findByIdAndUpdate(userId, { avatar }, { new: true })
+      .then((user) => {
+        if (!user) {
+          throw new NotFoundError('Пользователь не найден');
+        }
+
+        res.send({ data: user })
+      })
       .catch((err) => res.status(500).send({ message: err.message }));
   } else {
     res.status(400).send({ message: 'Должна быть ссылка на картинку' });
