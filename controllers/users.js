@@ -5,6 +5,7 @@ const PasswordValidator = require('password-validator');
 const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
 const BadRequestError = require('../errors/bad-request-err');
+const ConflictError = require('../errors/conflict-err');
 
 const pass = new PasswordValidator();
 
@@ -43,7 +44,7 @@ module.exports.getUserById = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -65,11 +66,10 @@ module.exports.createUser = (req, res) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        res.status(409).send({ message: 'Пользователь с таким email уже существует' });
+        throw new ConflictError('Пользователь с таким email уже существует');
       }
-
-      next(err);
-    });
+    })
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
