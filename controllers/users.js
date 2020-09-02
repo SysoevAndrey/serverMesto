@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const PasswordValidator = require('password-validator');
 const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
+const BadRequestError = require('../errors/bad-request-err');
 
 const pass = new PasswordValidator();
 
@@ -87,7 +88,7 @@ module.exports.updateProfile = (req, res, next) => {
       })
       .catch(next);
   } else {
-    res.status(400).send({ message: 'От 2 до 30 символов' });
+    throw new BadRequestError('От 2 до 30 символов');
   }
 };
 
@@ -106,7 +107,7 @@ module.exports.updateAvatar = (req, res, next) => {
       })
       .catch(next);
   } else {
-    res.status(400).send({ message: 'Должна быть ссылка на картинку' });
+    throw new BadRequestError('Должна быть ссылка на картинку');
   }
 };
 
