@@ -7,10 +7,15 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
 
+// import routes
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
-const auth = require('./middlewares/auth');
 
+// import middlewares
+const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
+// import controllers
 const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
@@ -36,6 +41,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(helmet());
 
+app.use(requestLogger);
+
 app.post('/signin', login);
 app.post('/signup', createUser);
 
@@ -46,6 +53,8 @@ app.use('/users', users);
 app.use('/', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
