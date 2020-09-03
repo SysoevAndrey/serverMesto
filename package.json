@@ -1,7 +1,7 @@
 {
   "name": "mesto",
-  "version": "0.0.6",
-  "description": "Server for Mesto project",
+  "version": "0.0.7",
+  "description": "Server for mesto project",
   "main": "app.js",
   "dependencies": {
     "bcryptjs": "^2.4.3",
