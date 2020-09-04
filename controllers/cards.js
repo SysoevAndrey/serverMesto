@@ -38,8 +38,11 @@ module.exports.deleteCard = (req, res, next) => {
         throw new ForbiddenError('Нет прав на удаление данной карточки');
       }
 
-      card.remove();
-      res.send(card);
+      card.remove()
+        .then((card) => {
+          res.send(card);
+        })
+        .catch(next);
     })
     .catch(next);
 };

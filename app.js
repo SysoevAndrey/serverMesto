@@ -18,6 +18,9 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 // import controllers
 const { login, createUser } = require('./controllers/users');
 
+// import errors
+const NotFoundError = require('./errors/not-found-err');
+
 const { PORT = 3000 } = process.env;
 
 const app = express();
@@ -57,7 +60,7 @@ app.use(auth);
 app.use('/cards', cards);
 app.use('/users', users);
 app.use('/', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
 
 app.use(errorLogger);
