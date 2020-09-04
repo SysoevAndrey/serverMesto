@@ -1,7 +1,5 @@
 const winston = require('winston');
 const expressWinston = require('express-winston');
-const { request } = require('express');
-const { format } = require('winston');
 
 const requestLogger = expressWinston.logger({
   transports: [

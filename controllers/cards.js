@@ -10,7 +10,7 @@ module.exports.getAllCards = (req, res, next) => {
         throw new NotFoundError('Нет карточек');
       }
 
-      res.send({ data: cards })
+      res.send({ data: cards });
     })
     .catch(next);
 };
@@ -51,7 +51,7 @@ module.exports.likeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Такой карточки не существует')
+      throw new NotFoundError('Такой карточки не существует');
     })
     .then((card) => res.send({ data: card }))
     .catch(next);
@@ -65,10 +65,10 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Такой карточки не существует')
+        throw new NotFoundError('Такой карточки не существует');
       }
 
-      res.send({ data: card })
+      res.send({ data: card });
     })
     .catch(next);
 };

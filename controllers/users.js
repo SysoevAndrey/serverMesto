@@ -11,7 +11,8 @@ const pass = new PasswordValidator();
 
 pass
   .has().not().spaces()
-  .is().min(6);
+  .is()
+  .min(6);
 
 const User = require('../models/users');
 
@@ -25,7 +26,7 @@ module.exports.getAllUsers = (req, res, next) => {
         throw new NotFoundError('Нет пользователей');
       }
 
-      res.send({ data: users })
+      res.send({ data: users });
     })
     .catch(next);
 };
@@ -84,7 +85,7 @@ module.exports.updateProfile = (req, res, next) => {
           throw new NotFoundError('Пользователь не найден');
         }
 
-        res.send({ data: user })
+        res.send({ data: user });
       })
       .catch(next);
   } else {
@@ -103,7 +104,7 @@ module.exports.updateAvatar = (req, res, next) => {
           throw new NotFoundError('Пользователь не найден');
         }
 
-        res.send({ data: user })
+        res.send({ data: user });
       })
       .catch(next);
   } else {

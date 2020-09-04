@@ -45,7 +45,7 @@ app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
-      throw new Error('Сервер сейчас упадёт');
+    throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
 
@@ -72,8 +72,10 @@ app.use((err, req, res, next) => {
     .send({
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
-        : message
+        : message,
     });
+
+  next();
 });
 
 app.listen(PORT);
