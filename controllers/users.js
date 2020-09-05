@@ -77,39 +77,30 @@ module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  if (validator.isLength(name, { min: 2, max: 30 })
-    && validator.isLength(about, { min: 2, max: 30 })) {
-    User.findByIdAndUpdate(userId, { name, about }, { new: true })
-      .then((user) => {
-        if (!user) {
-          throw new NotFoundError('Пользователь не найден');
-        }
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
 
-        res.send({ data: user });
-      })
-      .catch(next);
-  } else {
-    throw new BadRequestError('От 2 до 30 символов');
-  }
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  if (validator.isURL(avatar)) {
-    User.findByIdAndUpdate(userId, { avatar }, { new: true })
-      .then((user) => {
-        if (!user) {
-          throw new NotFoundError('Пользователь не найден');
-        }
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
 
-        res.send({ data: user });
-      })
-      .catch(next);
-  } else {
-    throw new BadRequestError('Должна быть ссылка на картинку');
-  }
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {

@@ -1,6 +1,7 @@
 const Card = require('../models/cards');
 const NotFoundError = require('../errors/not-found-err');
 const ForbiddenError = require('../errors/forbidden-err');
+const ValidationError = require('../errors/validation-err');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
@@ -20,7 +21,13 @@ module.exports.createCard = (req, res, next) => {
   const ownerId = req.user._id;
 
   Card.create({ name, link, owner: ownerId })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        throw new ValidationError('Ошибка валидации');
+      }
+
+      res.send({ data: card });
+    })
     .catch(next);
 };
 
@@ -39,7 +46,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
 
       card.remove()
-        .then((card) => {
+        .then(() => {
           res.send(card);
         })
         .catch(next);
