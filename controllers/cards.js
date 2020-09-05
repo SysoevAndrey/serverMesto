@@ -60,10 +60,13 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      throw new NotFoundError('Такой карточки не существует');
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Такой карточки не существует');
+      }
+
+      res.send({ data: card })
     })
-    .then((card) => res.send({ data: card }))
     .catch(next);
 };
 
