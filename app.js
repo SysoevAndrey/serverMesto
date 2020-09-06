@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const { errors, celebrate, Joi } = require('celebrate');
 
 // import routes
-const { default: validator } = require('validator');
 const cards = require('./routes/cards.js');
 const users = require('./routes/users.js');
 
@@ -18,6 +17,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 // import controllers
 const { login, createUser } = require('./controllers/users');
+const { linkValidator } = require('./controllers/linkValidator');
 
 // import errors
 const NotFoundError = require('./errors/not-found-err');
@@ -30,14 +30,6 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-
-const linkValidator = (value, helpers) => {
-  if (!validator.isURL(value)) {
-    return helpers.error('any.invalid');
-  }
-
-  return value;
-};
 
 app.use(limiter);
 

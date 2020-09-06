@@ -1,17 +1,10 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { default: validator } = require('validator');
 const {
   getAllUsers, getUserById, updateProfile, updateAvatar,
 } = require('../controllers/users');
 
-const linkValidator = (value, helpers) => {
-  if (!validator.isURL(value)) {
-    return helpers.error('any.invalid');
-  }
-
-  return value;
-};
+const { linkValidator } = require('../controllers/linkValidator');
 
 router.get('/', getAllUsers);
 
