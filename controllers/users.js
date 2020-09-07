@@ -1,16 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const PasswordValidator = require('password-validator');
 const NotFoundError = require('../errors/not-found-err');
-const UnauthorizedError = require('../errors/unauthorized-err');
 const ConflictError = require('../errors/conflict-err');
-
-const pass = new PasswordValidator();
-
-pass
-  .has().not().spaces()
-  .is()
-  .min(6);
 
 const User = require('../models/users');
 
@@ -47,10 +38,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
-  if (!pass.validate(password)) {
-    throw new UnauthorizedError('Пароль не валиден');
-  }
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
