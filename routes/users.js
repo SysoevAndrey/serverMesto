@@ -4,7 +4,7 @@ const {
   getAllUsers, getUserById, updateProfile, updateAvatar,
 } = require('../controllers/users');
 
-const { linkValidator } = require('../controllers/linkValidator');
+const { linkValidator } = require('../validators/linkValidator');
 
 router.get('/', getAllUsers);
 

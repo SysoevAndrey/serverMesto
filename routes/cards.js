@@ -4,7 +4,7 @@ const {
   getAllCards, createCard, deleteCard, likeCard, dislikeCard,
 } = require('../controllers/cards');
 
-const { linkValidator } = require('../controllers/linkValidator');
+const { linkValidator } = require('../validators/linkValidator');
 
 Joi.objectId = require('joi-objectid')(Joi);
 

@@ -17,7 +17,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 // import controllers
 const { login, createUser } = require('./controllers/users');
-const { linkValidator } = require('./controllers/linkValidator');
+const { linkValidator } = require('./validators/linkValidator');
 
 // import errors
 const NotFoundError = require('./errors/not-found-err');
