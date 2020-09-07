@@ -22,10 +22,6 @@ module.exports.createCard = (req, res, next) => {
 
   Card.create({ name, link, owner: ownerId })
     .then((card) => {
-      if (!card) {
-        throw new ValidationError('Ошибка валидации');
-      }
-
       res.send({ data: card });
     })
     .catch(next);
