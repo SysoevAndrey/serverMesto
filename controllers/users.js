@@ -1,43 +1,43 @@
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const PasswordValidator = require('password-validator');
-
-const pass = new PasswordValidator();
-
-pass
-  .has().not().spaces()
-  .is()
-  .min(6);
+const NotFoundError = require('../errors/not-found-err');
+const ConflictError = require('../errors/conflict-err');
 
 const User = require('../models/users');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const key = NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret';
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((users) => {
+      if (!users) {
+        throw new NotFoundError('Нет пользователей');
+      }
+
+      res.send({ data: users });
+    })
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findOne({ _id: userId })
-    .orFail(() => Error('Пользователь не найден'))
-    .then((user) => res.send(user))
-    .catch((err) => res.status(404).send({ message: err.message }));
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+
+      res.send(user);
+    })
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
-  if (!pass.validate(password)) {
-    res.status(401).send({ message: 'Пароль не валиден' });
-  }
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -51,44 +51,44 @@ module.exports.createUser = (req, res) => {
       email, name, about, avatar,
     }))
     .catch((err) => {
-      if (err.code === 11000) {
-        res.status(409).send({ message: 'Пользователь с таким email уже существует' });
+      if (err.code === 11000 && err.name === 'MongoError') {
+        throw new ConflictError('Пользователь с таким email уже существует');
       }
-
-      res.status(500).send({ message: err.message });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  if (validator.isLength(name, { min: 2, max: 30 })
-    && validator.isLength(about, { min: 2, max: 30 })) {
-    User.findByIdAndUpdate(userId, { name, about })
-      .orFail(() => Error('Пользователь не найден'))
-      .then((user) => res.send({ data: user }))
-      .catch((err) => res.status(500).send({ message: err.message }));
-  } else {
-    res.status(400).send({ message: 'От 2 до 30 символов' });
-  }
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  if (validator.isURL(avatar)) {
-    User.findByIdAndUpdate(userId, { avatar })
-      .orFail(() => Error('Пользователь не найден'))
-      .then((user) => res.send({ data: user }))
-      .catch((err) => res.status(500).send({ message: err.message }));
-  } else {
-    res.status(400).send({ message: 'Должна быть ссылка на картинку' });
-  }
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+
+      res.send({ data: user });
+    })
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -99,10 +99,9 @@ module.exports.login = (req, res) => {
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
+          sameSite: true,
         })
         .send({ message: `Добро пожаловать: ${user.name}` });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };

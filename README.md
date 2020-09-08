@@ -1,5 +1,5 @@
 # serverMesto
-###### 0.0.6
+###### 0.0.7
 
 In this project, I have created my first server.
 
@@ -20,3 +20,9 @@ In this project, I have created my first server.
   * Development mode with hot reloading: ```npm run dev```
 
   * Standart mode: ```npm run start```
+
+#### Result
+
+  * Frontend: https://sysoev.cf
+  
+  * Backend: https://api.sysoev.cf
