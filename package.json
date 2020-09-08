@@ -1,6 +1,6 @@
 {
   "name": "mesto",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Server for mesto project",
   "main": "app.js",
   "dependencies": {
